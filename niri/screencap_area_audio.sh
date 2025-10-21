@@ -1,7 +1,7 @@
 #!/bin/bash
 
 is_recorder_running() {
-    pgrep -x wf-recorder >/dev/null
+    pgrep -x wl-screenrec >/dev/null
 }
 
 TMP_FILE="/tmp/recording_area_audio.mp4"
@@ -9,7 +9,7 @@ APP_NAME="Area Capture with Audio"
 
 toggle_recorder() {
     if is_recorder_running; then
-        kill $(pgrep -x wf-recorder)
+        kill $(pgrep -x wl-screenrec)
     else
         GEOMETRY=$(slurp)
         if [[ ! -z "$GEOMETRY" ]]; then
@@ -17,14 +17,14 @@ toggle_recorder() {
                 rm "$TMP_FILE"
             fi
 
-            notify-send -a "$APP_NAME" "Started capturing area with audio to clipboard."
-            timeout 600 wf-recorder -y --audio=alsa_output.usb-CEntrance_CEntrance_Dacportable-00.analog-stereo.monitor -g "$GEOMETRY" -f $TMP_FILE
+            notify-send -e -t 2000 "Started capturing area with audio to clipboard."
+            timeout 600 wl-screenrec -b "2 MB" --audio --audio-bitrate "48 kB" --audio-device=alsa_output.usb-CEntrance_CEntrance_Dacportable-00.analog-stereo.monitor -g "$GEOMETRY" -f $TMP_FILE
             wl-copy -t text/uri-list file://$TMP_FILE 
 
             if [ $? -eq 124 ]; then
-                notify-send -a "$APP_NAME" "Area capturing timed out."
+                notify-send -e -t 2000 "Area capturing timed out."
             else
-                notify-send -a "$APP_NAME" "Area capturing was stopped."
+                notify-send -e -t 2000 "Area capturing was stopped."
             fi
         fi
     fi
